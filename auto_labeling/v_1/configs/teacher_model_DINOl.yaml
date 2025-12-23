@@ -1,0 +1,58 @@
+teacher:
+  model_config: "auto_labeling/v_1/models/teacher/GroundingDINO_SwinB.cfg.py"
+  model_weights: "auto_labeling/v_1/models/teacher/groundingdino_swinb_cogcoor.pth"
+
+  device: "cpu"
+
+  box_threshold: 0.1
+  text_threshold: 0.1
+
+  class_prompt: >
+    car . sedan . vehicle .
+    traffic sign . road sign . traffic light .
+    truck . cargo truck . lorry .
+    person . human .
+    special vehicle . emergency vehicle . police car . ambulance . fire truck .
+    bicycle . bike .
+    motorcycle . motorbike .
+    bus . city bus .
+    pedestrian . walking person .
+
+  class_map:
+    "car": 0
+    "sedan": 0
+    "vehicle": 0
+
+    "traffic sign": 1
+    "road sign": 1
+    "traffic light": 1
+
+    "truck": 2
+    "cargo truck": 2
+    "lorry": 2
+
+    "person": 3
+    "human": 3
+
+    "special vehicle": 4
+    "emergency vehicle": 4
+    "police car": 4
+    "ambulance": 4
+    "fire truck": 4
+
+    "bicycle": 5
+    "bike": 5
+
+    "motorcycle": 6
+    "motorbike": 6
+
+    "bus": 7
+    "city bus": 7
+
+    "pedestrian": 8
+    "walking person": 8
+
+  output_label_dir: "auto_labeling/v_1/test/out_labels"
+
+  save_debug_vis: false
+  debug_vis_dir: "auto_labeling/v_1/test/debug_vis"

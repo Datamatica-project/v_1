@@ -1,0 +1,114 @@
+############################
+# OS / Editor
+############################
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+############################
+# Python
+############################
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+*.log
+
+.venv/
+venv/
+env/
+ENV/
+dist/
+build/
+*.egg-info/
+
+############################
+# Jupyter
+############################
+.ipynb_checkpoints/
+
+############################
+# PyTorch / DL Weights
+############################
+*.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+*.ckpt
+
+############################
+# Ultralytics / YOLO
+############################
+runs/
+**/runs/
+wandb/
+mlruns/
+
+############################
+# Project: Auto Labeling V₁
+############################
+
+# 데이터 (대용량)
+auto_labeling/v_1/data/
+auto_labeling/v1/data/
+auto_labeling/v_1/logs/
+auto_labeling/v1/logs/
+
+# 모델 산출물 (weights, checkpoints 등)
+auto_labeling/v_1/models/**/weights/
+auto_labeling/v_1/models/**/checkpoints/
+auto_labeling/v_1/models/**/runs/
+auto_labeling/v_1/models/**/export/
+
+auto_labeling/v1/models/**/weights/
+auto_labeling/v1/models/**/checkpoints/
+auto_labeling/v1/models/**/runs/
+auto_labeling/v1/models/**/export/
+
+# Teacher 시각화 / 디버그 출력
+auto_labeling/v_1/logs/teacher_vis/
+auto_labeling/v1/logs/teacher_vis/
+
+############################
+# Export / Ingest Artifacts
+############################
+**/raw_ingest/
+**/payload.zip
+**/extracted/
+
+**/final_export/
+**/exports/
+**/export_*/
+**/manifest*.json
+
+############################
+# Media / Large files
+############################
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+############################
+# Secrets
+############################
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*secret*
+*credentials*

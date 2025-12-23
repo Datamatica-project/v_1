@@ -1,0 +1,50 @@
+# --- big data / outputs ---
+**/data/
+**/logs/
+**/runs/
+**/weights/
+**/models/
+**/*.pt
+**/*.pth
+**/*.onnx
+**/*.engine
+**/*.ckpt
+**/*.tflite
+
+# zips, archives
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.7z
+
+# caches
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.cache/
+
+# venv/conda
+**/venv/
+**/.venv/
+**/env/
+**/.conda/
+**/miniconda*/
+**/anaconda*/
+
+# git
+**/.git/
+**/.gitignore
+
+# OS/IDE
+**/.DS_Store
+**/Thumbs.db
+**/.idea/
+**/.vscode/
+
+# notebooks
+**/*.ipynb
+
+# docker build artifacts
+**/*.log
