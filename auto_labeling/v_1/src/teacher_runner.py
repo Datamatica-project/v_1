@@ -134,14 +134,14 @@ def run_teacher_on_fail(
                     "Falling back to local cfg['weights']."
                 )
                 teacher_weights = _resolve_path(
-                    cfg.get("weights", "models/teacher/weights/yolov11x_teacher_v1_20251211.pt")
+                    cfg.get("weights", "models/teacher/weights/student_v1.pt")
                 )
             else:
                 cache_dir = _resolve_path(cfg.get("weights_cache_dir", "models/teacher/weights_cache"))
                 teacher_weights = fetch_s3_to_cache(weights_uri, cache_dir=cache_dir)
         else:
             teacher_weights = _resolve_path(
-                cfg.get("weights", "models/teacher/weights/yolov11x_teacher_v1_20251211.pt"))
+                cfg.get("weights", "models/teacher/weights/student_v1.pt"))
     else:
         teacher_weights = Path(teacher_weights)
 

@@ -224,11 +224,11 @@ class AutoBackend(nn.Module):
             import torchvision  # noqa - https://github.com/ultralytics/ultralytics/pull/19747
 
             LOGGER.info(f"Loading {w} for TorchScript inference...")
-            extra_files = {"config.txt": ""}  # model metadata
+            extra_files = {"configs.txt": ""}  # model metadata
             model = torch.jit.load(w, _extra_files=extra_files, map_location=device)
             model.half() if fp16 else model.float()
-            if extra_files["config.txt"]:  # load metadata dict
-                metadata = json.loads(extra_files["config.txt"], object_hook=lambda x: dict(x.items()))
+            if extra_files["configs.txt"]:  # load metadata dict
+                metadata = json.loads(extra_files["configs.txt"], object_hook=lambda x: dict(x.items()))
 
         # ONNX OpenCV DNN
         elif dnn:

@@ -1,4 +1,3 @@
-# app.py
 from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
@@ -10,19 +9,22 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import Response
-
+from fastapi.middleware.cors import CORSMiddleware
 from augmentation import AugConfig, build_train_augment, apply_augment
 
 YoloBBox = Tuple[float, float, float, float]
 
 app = FastAPI(title="Augmentation API", version="3.0.0")
-
-# -----------------------
-# fixed policy (NO API params)
-# -----------------------
-AUG_COUNT = 4                 # flip/scale/blur/color
-INCLUDE_ORIGINAL = True       # total = 5
-SAVE_VIZ = True               # always include viz
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # 개발용: 전부 허용
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+AUG_COUNT = 4
+INCLUDE_ORIGINAL = True
+SAVE_VIZ = True
 TAGS = ["flip", "scale", "blur", "color"]
 
 class BBoxItem(BaseModel):

@@ -253,7 +253,7 @@ def cfg2dict(cfg: str | Path | dict | SimpleNamespace) -> dict:
 
     Examples:
         Convert a YAML file path to a dictionary:
-        >>> config_dict = cfg2dict("config.yaml")
+        >>> config_dict = cfg2dict("configs.yaml")
 
         Convert a SimpleNamespace to a dictionary:
         >>> from types import SimpleNamespace
@@ -290,8 +290,8 @@ def get_cfg(
 
     Examples:
         >>> from ultralytics.cfg import get_cfg
-        >>> config = get_cfg()  # Load default configuration
-        >>> config_with_overrides = get_cfg("path/to/config.yaml", overrides={"epochs": 50, "batch_size": 16})
+        >>> configs = get_cfg()  # Load default configuration
+        >>> config_with_overrides = get_cfg("path/to/configs.yaml", overrides={"epochs": 50, "batch_size": 16})
 
     Notes:
         - If both `cfg` and `overrides` are provided, the values in `overrides` will take precedence.
@@ -336,14 +336,14 @@ def check_cfg(cfg: dict, hard: bool = True) -> None:
         hard (bool): If True, raises exceptions for invalid types and values; if False, attempts to convert them.
 
     Examples:
-        >>> config = {
+        >>> configs = {
         ...     "epochs": 50,  # valid integer
         ...     "lr0": 0.01,  # valid float
         ...     "momentum": 1.2,  # invalid float (out of 0.0-1.0 range)
         ...     "save": "true",  # invalid bool
         ... }
-        >>> check_cfg(config, hard=False)
-        >>> print(config)
+        >>> check_cfg(configs, hard=False)
+        >>> print(configs)
         {'epochs': 50, 'lr0': 0.01, 'momentum': 1.2, 'save': False}  # corrected 'save' key
 
     Notes:
