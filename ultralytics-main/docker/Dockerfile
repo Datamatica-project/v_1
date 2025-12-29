@@ -17,7 +17,7 @@ ENV PYTHONUNBUFFERED=1 \
     OMP_NUM_THREADS=1 \
     TF_CPP_MIN_LOG_LEVEL=3
 
-# Downloads to user config dir
+# Downloads to user configs dir
 ADD https://github.com/ultralytics/assets/releases/download/v0.0.0/Arial.ttf \
     https://github.com/ultralytics/assets/releases/download/v0.0.0/Arial.Unicode.ttf \
     /root/.config/Ultralytics/
@@ -36,7 +36,7 @@ WORKDIR /ultralytics
 
 # Copy contents and configure git
 COPY . .
-RUN sed -i '/^\[http "https:\/\/github\.com\/"\]/,+1d' .git/config && \
+RUN sed -i '/^\[http "https:\/\/github\.com\/"\]/,+1d' .git/configs && \
     sed -i'' -e 's/"opencv-python/"opencv-python-headless/' pyproject.toml
 ADD https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt .
 
@@ -44,7 +44,7 @@ ADD https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt .
 RUN pip install uv && \
     uv pip install --system -e "." albumentations faster-coco-eval wandb && \
     # Remove extra build files \
-    rm -rf tmp /root/.config/Ultralytics/persistent_cache.json
+    rm -rf tmp /root/.configs/Ultralytics/persistent_cache.json
 
 # Usage Examples -------------------------------------------------------------------------------------------------------
 

@@ -666,7 +666,7 @@ class ModelEMA:
             copy_attr(self.ema, model, include, exclude)
 
 
-def strip_optimizer(f: str | Path = "yolov11x_teacher_v1_20251211.pt", s: str = "", updates: dict[str, Any] | None = None) -> dict[str, Any]:
+def strip_optimizer(f: str | Path = "student_v1.pt", s: str = "", updates: dict[str, Any] | None = None) -> dict[str, Any]:
     """Strip optimizer from 'f' to finalize training, optionally save as 's'.
 
     Args:
@@ -897,7 +897,7 @@ class EarlyStopping:
             prefix = colorstr("EarlyStopping: ")
             LOGGER.info(
                 f"{prefix}Training stopped early as no improvement observed in last {self.patience} epochs. "
-                f"Best results observed at epoch {self.best_epoch}, best model saved as yolov11x_teacher_v1_20251211.pt.\n"
+                f"Best results observed at epoch {self.best_epoch}, best model saved as student_v1.pt.\n"
                 f"To update EarlyStopping(patience={self.patience}) pass a new patience value, "
                 f"i.e. `patience=300` or use `patience=0` to disable EarlyStopping."
             )

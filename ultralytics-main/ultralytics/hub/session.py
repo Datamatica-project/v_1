@@ -146,7 +146,7 @@ class HUBTrainingSession:
             (None): If the model could not be created.
         """
         payload = {
-            "config": {
+            "configs": {
                 "batchSize": model_args.get("batch", -1),
                 "epochs": model_args.get("epochs", 300),
                 "imageSize": model_args.get("imgsz", 640),
@@ -389,7 +389,7 @@ class HUBTrainingSession:
                     "For more reliable training, consider using Ultralytics HUB Cloud. "
                     "Learn more at https://docs.ultralytics.com/hub/cloud-training."
                 )
-                shutil.copy(last, weights)  # copy last.pt to yolov11x_teacher_v1_20251211.pt
+                shutil.copy(last, weights)  # copy last.pt to student_v1.pt
             else:
                 LOGGER.warning(f"{PREFIX} Model upload issue. Missing model {weights}.")
                 return

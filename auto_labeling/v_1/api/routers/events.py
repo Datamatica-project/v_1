@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
+import json
 
 from fastapi import APIRouter, HTTPException, Body
 
@@ -9,9 +11,26 @@ from auto_labeling.v_1.api.dto.event import EventPayload
 
 router = APIRouter(prefix="/events")
 
+# ---------------------------------------------------------------------
+# storage config
+# ---------------------------------------------------------------------
+PROJECT_ROOT = Path("/workspace")
+EVENTS_ROOT = PROJECT_ROOT / "auto_labeling" / "v_1" / "logs" / "events"
+
 
 def _now_iso_z() -> str:
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _safe_ts() -> str:
+    return datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+
+
+def _dump_event(event: EventPayload) -> dict:
+    # pydantic v1/v2 호환
+    if hasattr(event, "model_dump"):
+        return event.model_dump(by_alias=True, exclude_none=True)
+    return event.dict(by_alias=True, exclude_none=True)
 
 
 @router.post(
@@ -37,84 +56,18 @@ def _now_iso_z() -> str:
         "- data가 없으면 400\n"
         "- eventType/runId가 없으면 ApiEnvelope(resultCode=FAIL, errorCode=...)로 응답\n"
     ),
-    responses={
-        200: {"description": "이벤트 수신 ACK(ApiEnvelope)"},
-        400: {"description": "data 누락 등 요청 형식 오류"},
-    },
 )
 def post_event(
-    req: ApiEnvelope[EventPayload] = Body(
-        ...,
-        description=(
-            "이벤트 수신 요청.\n\n"
-            "### 구조\n"
-            "{\n"
-            '  "resultCode": "SUCCESS",   # (요청에서는 보통 의미 없음, 무시 가능)\n'
-            '  "errorCode": null,\n'
-            '  "message": null,\n'
-            '  "data": {\n'
-            '    "eventType": "ROUND_RESULT",\n'
-            '    "runId": "run_001",\n'
-            '    "jobId": "job_20251219_172000",\n'
-            '    "status": "DONE",\n'
-            '    "timestamp": "2025-12-19T07:09:32.872Z",\n'
-            '    "round": 1,\n'
-            '    "passCount": 1200,\n'
-            '    "failCount": 340,\n'
-            '    "missCount": 12,\n'
-            '    "exportRelPath": "exports/run_001/round0",\n'
-            '    "manifestRelPath": "exports/run_001/round0/manifest.json",\n'
-            '    "extra": { "countUnit": "image" }\n'
-            "  }\n"
-            "}\n"
-        ),
-        examples=[
-            {
-                "resultCode": "SUCCESS",
-                "errorCode": None,
-                "message": None,
-                "data": {
-                    "eventType": "ROUND0_EXPORTED",
-                    "runId": "run_001",
-                    "jobId": "job_20251219_172000",
-                    "status": "DONE",
-                    "timestamp": "2025-12-19T07:09:32.872Z",
-                    "round": 0,
-                    "passCount": 1200,
-                    "failCount": 340,
-                    "missCount": 12,
-                    "exportRelPath": "exports/run_001/round0",
-                    "manifestRelPath": "exports/run_001/round0/manifest.json",
-                    "extra": {"countUnit": "image"},
-                },
-            },
-            {
-                "resultCode": "SUCCESS",
-                "errorCode": None,
-                "message": None,
-                "data": {
-                    "eventType": "LOOP_FAILED",
-                    "runId": "run_001",
-                    "jobId": "job_20251219_172000",
-                    "status": "FAILED",
-                    "timestamp": "2025-12-19T07:20:11.000Z",
-                    "message": "loop failed: out of disk",
-                    "extra": {"node": "worker-0"},
-                },
-            },
-        ],
-    )
+    req: ApiEnvelope[EventPayload] = Body(...),
 ):
     # -----------------------------
     # validate request
     # -----------------------------
     if not req.data:
-        # ApiEnvelope 형태라도 data 없으면 "요청 형식 오류"로 보는 게 명확함
         raise HTTPException(status_code=400, detail="data is required")
 
     event = req.data
 
-    # eventType/runId가 없으면 envelope FAIL로 반환(스펙화)
     if not getattr(event, "eventType", None):
         return ApiEnvelope(
             resultCode="FAIL",
@@ -132,10 +85,28 @@ def post_event(
         )
 
     # -----------------------------
-    # side effect (현재는 print)
-    # - 운영에서는 DB 저장, 큐 publish, 로그 적재 등을 수행할 수 있음
+    # side effect: persist event log
+    # logs/events/<runId>/<timestamp>_<eventType>.json
     # -----------------------------
-    print("[EVENT]", event.model_dump())
+    run_id = event.runId
+    event_type = event.eventType
+    ts = _safe_ts()
+
+    out_dir = EVENTS_ROOT / run_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    out_file = out_dir / f"{ts}_{event_type}.json"
+    out_file.write_text(
+        json.dumps(
+            {
+                "receivedAt": _now_iso_z(),
+                "event": _dump_event(event),
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     # -----------------------------
     # ack
@@ -144,6 +115,4 @@ def post_event(
         resultCode="SUCCESS",
         message="Event received",
         data=None,
-        # 필요하면 extra나 receivedAt 같은 걸 Envelope에 넣고 싶겠지만
-        # 현재 ApiEnvelope 스키마가 없으니 message/data만 유지
     )

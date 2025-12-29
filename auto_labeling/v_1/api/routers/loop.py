@@ -79,7 +79,7 @@ def _normalize_keys(d: dict) -> dict:
     return d
 
 
-@router.get(
+@router.post(
     "/run",
     response_model=RunLoopResponse,
     summary="Loop 실행(Worker 프록시)",
@@ -92,7 +92,7 @@ def _normalize_keys(d: dict) -> dict:
         "- RunLoopRequest의 대부분 필드는 **비워도 됩니다(Optional)**.\n"
         "- 미지정 시 Worker/서버 기본 설정(cfg, registry 등)을 사용합니다.\n\n"
         "### 응답\n"
-        "- jobId를 반환하며, 이후 `GET /api/v1/loop/status/{jobId}`로 진행 상태를 조회합니다.\n\n"
+        "- jobId를 반환하며, 이후 `post /api/v1/loop/status/{jobId}`로 진행 상태를 조회합니다.\n\n"
         "### 오류(502)\n"
         "- Worker가 죽었거나 네트워크/응답 형식 문제가 발생하면 502(Bad Gateway)를 반환합니다."
     ),

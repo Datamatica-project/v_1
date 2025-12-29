@@ -55,7 +55,7 @@ class SolutionConfig:
         update: Update the configuration with user-defined keyword arguments and raise error on invalid keys.
 
     Examples:
-        >>> from ultralytics.solutions.config import SolutionConfig
+        >>> from ultralytics.solutions.configs import SolutionConfig
         >>> cfg = SolutionConfig(model="yolo11n.pt", region=[(0, 0), (100, 0), (100, 100), (0, 100)])
         >>> cfg.update(show=False, conf=0.3)
         >>> print(cfg.model)

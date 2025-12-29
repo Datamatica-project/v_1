@@ -340,8 +340,8 @@ This example loads a custom 20-class [VOC](https://github.com/ultralytics/yolov5
 ```python
 import torch
 
-model = torch.hub.load("ultralytics/yolov5", "custom", path="path/to/yolov11x_teacher_v1_20251211.pt")  # local model
-model = torch.hub.load("path/to/yolov5", "custom", path="path/to/yolov11x_teacher_v1_20251211.pt", source="local")  # local repo
+model = torch.hub.load("ultralytics/yolov5", "custom", path="path/to/student_v1.pt")  # local model
+model = torch.hub.load("path/to/yolov5", "custom", path="path/to/student_v1.pt", source="local")  # local repo
 ```
 
 ## TensorRT, ONNX and OpenVINO Models

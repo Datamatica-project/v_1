@@ -22,7 +22,7 @@ class OBBTrainer(yolo.detect.DetectionTrainer):
             dfl_loss.
 
     Methods:
-        get_model: Return OBBModel initialized with specified config and weights.
+        get_model: Return OBBModel initialized with specified configs and weights.
         get_validator: Return an instance of OBBValidator for validation of YOLO model.
 
     Examples:
@@ -50,10 +50,10 @@ class OBBTrainer(yolo.detect.DetectionTrainer):
     def get_model(
         self, cfg: str | dict | None = None, weights: str | Path | None = None, verbose: bool = True
     ) -> OBBModel:
-        """Return OBBModel initialized with specified config and weights.
+        """Return OBBModel initialized with specified configs and weights.
 
         Args:
-            cfg (str | dict, optional): Model configuration. Can be a path to a YAML config file, a dictionary
+            cfg (str | dict, optional): Model configuration. Can be a path to a YAML configs file, a dictionary
                 containing configuration parameters, or None to use default configuration.
             weights (str | Path, optional): Path to pretrained weights file. If None, random initialization is used.
             verbose (bool): Whether to display model information during initialization.

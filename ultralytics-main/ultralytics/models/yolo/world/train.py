@@ -38,7 +38,7 @@ class WorldTrainer(DetectionTrainer):
         args (Any): Training arguments and configuration.
 
     Methods:
-        get_model: Return WorldModel initialized with specified config and weights.
+        get_model: Return WorldModel initialized with specified configs and weights.
         build_dataset: Build YOLO Dataset for training or validation.
         set_text_embeddings: Set text embeddings for datasets to accelerate training.
         generate_text_embeddings: Generate text embeddings for a list of text samples.
@@ -67,7 +67,7 @@ class WorldTrainer(DetectionTrainer):
         self.text_embeddings = None
 
     def get_model(self, cfg=None, weights: str | None = None, verbose: bool = True) -> WorldModel:
-        """Return WorldModel initialized with specified config and weights.
+        """Return WorldModel initialized with specified configs and weights.
 
         Args:
             cfg (dict[str, Any] | str, optional): Model configuration.
@@ -78,7 +78,7 @@ class WorldTrainer(DetectionTrainer):
             (WorldModel): Initialized WorldModel.
         """
         # NOTE: This `nc` here is the max number of different text samples in one image, rather than the actual `nc`.
-        # NOTE: Following the official config, nc hard-coded to 80 for now.
+        # NOTE: Following the official configs, nc hard-coded to 80 for now.
         model = WorldModel(
             cfg["yaml_file"] if isinstance(cfg, dict) else cfg,
             ch=self.data["channels"],

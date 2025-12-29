@@ -44,7 +44,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     Args:
         terminalreporter: The terminal reporter object used for terminal output.
         exitstatus (int): The exit status of the test run.
-        config: The pytest config object.
+        config: The pytest configs object.
     """
     from ultralytics.utils import WEIGHTS_DIR
 

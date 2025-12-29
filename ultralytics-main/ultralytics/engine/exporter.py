@@ -617,7 +617,7 @@ class Exporter:
         f = self.file.with_suffix(".torchscript")
 
         ts = torch.jit.trace(NMSModel(self.model, self.args) if self.args.nms else self.model, self.im, strict=False)
-        extra_files = {"config.txt": json.dumps(self.metadata)}  # torch._C.ExtraFilesMap()
+        extra_files = {"configs.txt": json.dumps(self.metadata)}  # torch._C.ExtraFilesMap()
         if self.args.optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
             LOGGER.info(f"{prefix} optimizing for mobile...")
             from torch.utils.mobile_optimizer import optimize_for_mobile

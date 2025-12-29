@@ -1,5 +1,3 @@
-# auto_labeling/v_1/api/routers/ingest.py
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Query, Path as PathParam
@@ -15,23 +13,21 @@ from auto_labeling.v_1.src.gt_register import register_gt_yolo
 
 router = APIRouter()
 
-ROOT = Path(__file__).resolve().parents[2]  # .../v_1
+ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data"
-RAW = DATA / "raw_ingest"               # ingest 임시 저장소 (zip/extracted/status.json)
-GT_VERS = DATA / "GT_versions"          # 등록된 GT 버전 보관 (GT_<ingest_id>)
-GT_CUR = DATA / "GT"                    # 현재 GT 심볼릭 링크(또는 디렉토리)
-UNLAB = DATA / "unlabeled" / "images"   # unlabeled 이미지 풀
+RAW = DATA / "raw_ingest"
+GT_VERS = DATA / "GT_versions"
+GT_CUR = DATA / "GT"
+UNLAB = DATA / "unlabeled" / "images"
 
 
 def _new_id(prefix: str) -> str:
-    """ingestId 생성: {prefix}_YYYYmmdd_HHMMSS_<rand>"""
     ts = time.strftime("%Y%m%d_%H%M%S")
     suf = uuid.uuid4().hex[:8]
     return f"{prefix}_{ts}_{suf}"
 
 
 def _save_status(d: Path, payload: dict) -> None:
-    """RAW/<ingest_id>/status.json 저장"""
     d.mkdir(parents=True, exist_ok=True)
     p = d / "status.json"
     p.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -168,8 +164,6 @@ def register_gt(
         copy_mode=copy_mode,
         strict=strict,
     )
-
-    # ✅ 현재 GT 링크 갱신 (data/GT -> GT_versions/GT_<ingest_id>)
     GT_CUR.parent.mkdir(parents=True, exist_ok=True)
     if GT_CUR.exists() or GT_CUR.is_symlink():
         if GT_CUR.is_symlink() or GT_CUR.is_file():

@@ -22,7 +22,7 @@ conf = 0.3  # Min confidence for object detection (lower = more detections, poss
 iou = 0.3  # IoU threshold for NMS (higher = less overlap allowed)
 max_det = 20  # Maximum objects per image (increase for crowded scenes)
 
-tracker = "bytetrack.yaml"  # Tracker config: 'bytetrack.yaml', 'botsort.yaml', etc.
+tracker = "bytetrack.yaml"  # Tracker configs: 'bytetrack.yaml', 'botsort.yaml', etc.
 track_args = {
     "persist": True,  # Keep frames history as a stream for continuous tracking
     "verbose": False,  # Print debug info from tracker

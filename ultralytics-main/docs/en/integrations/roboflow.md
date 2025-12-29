@@ -189,7 +189,7 @@ project = rf.workspace(WORKSPACE_ID).project(PROJECT_ID)
 dataset = project.version(VERSION)
 
 # Upload model weights for deployment
-# Ensure model_path points to the directory containing 'yolov11x_teacher_v1_20251211.pt'
+# Ensure model_path points to the directory containing 'student_v1.pt'
 project.version(dataset.version).deploy(
     model_type="yolov8", model_path=MODEL_PATH
 )  # Note: Use "yolov8" as model_type for YOLO11 compatibility in Roboflow deployment

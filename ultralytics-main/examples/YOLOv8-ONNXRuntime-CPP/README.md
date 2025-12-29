@@ -132,7 +132,7 @@ Ensure you have the following dependencies installed:
     make
 
     # Using CMake's generic build command (works with Make, Ninja, etc.)
-    cmake --build . --config Release
+    cmake --build . --configs Release
     ```
 
 5.  **Locate Executable:**

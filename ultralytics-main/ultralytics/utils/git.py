@@ -21,7 +21,7 @@ class GitRepo:
         is_repo (bool): Whether the provided path resides inside a Git repository.
         branch (str | None): Current branch name when HEAD points to a branch; None for detached HEAD or non-repo.
         commit (str | None): Current commit SHA for HEAD; None if not determinable.
-        origin (str | None): URL of the "origin" remote as read from gitdir/config; None if unset or unavailable.
+        origin (str | None): URL of the "origin" remote as read from gitdir/configs; None if unset or unavailable.
 
     Examples:
         Initialize from the current working directory and read metadata
@@ -33,7 +33,7 @@ class GitRepo:
         ('main', '1a2b3c4', 'https://example.com/owner/repo.git')
 
     Notes:
-        - Resolves metadata by reading files: HEAD, packed-refs, and config; no subprocess calls are used.
+        - Resolves metadata by reading files: HEAD, packed-refs, and configs; no subprocess calls are used.
         - Caches properties on first access using cached_property; recreate the object to reflect repository changes.
     """
 
@@ -114,7 +114,7 @@ class GitRepo:
         """Origin URL or None."""
         if not self.is_repo:
             return None
-        cfg = self.gitdir / "config"
+        cfg = self.gitdir / "configs"
         remote, url = None, None
         for s in (self._read(cfg) or "").splitlines():
             t = s.strip()

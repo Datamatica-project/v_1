@@ -108,7 +108,7 @@ class BaseTrainer:
 
     Examples:
         Initialize a trainer and start training
-        >>> trainer = BaseTrainer(cfg="config.yaml")
+        >>> trainer = BaseTrainer(cfg="configs.yaml")
         >>> trainer.train()
     """
 
@@ -139,7 +139,7 @@ class BaseTrainer:
             self.wdir.mkdir(parents=True, exist_ok=True)  # make dir
             self.args.save_dir = str(self.save_dir)
             YAML.save(self.save_dir / "args.yaml", vars(self.args))  # save run args
-        self.last, self.best = self.wdir / "last.pt", self.wdir / "yolov11x_teacher_v1_20251211.pt"  # checkpoint paths
+        self.last, self.best = self.wdir / "last.pt", self.wdir / "student_v1.pt"  # checkpoint paths
         self.save_period = self.args.save_period
 
         self.batch_size = self.args.batch
@@ -512,7 +512,7 @@ class BaseTrainer:
 
         seconds = time.time() - self.train_time_start
         LOGGER.info(f"\n{epoch - self.start_epoch + 1} epochs completed in {seconds / 3600:.3f} hours.")
-        # Do final val with yolov11x_teacher_v1_20251211.pt
+        # Do final val with student_v1.pt
         self.final_eval()
         if RANK in {-1, 0}:
             if self.args.plots:
@@ -613,7 +613,7 @@ class BaseTrainer:
         self.wdir.mkdir(parents=True, exist_ok=True)  # ensure weights directory exists
         self.last.write_bytes(serialized_ckpt)  # save last.pt
         if self.best_fitness == self.fitness:
-            self.best.write_bytes(serialized_ckpt)  # save yolov11x_teacher_v1_20251211.pt
+            self.best.write_bytes(serialized_ckpt)  # save student_v1.pt
         if (self.save_period > 0) and (self.epoch % self.save_period == 0):
             (self.wdir / f"epoch{self.epoch}.pt").write_bytes(serialized_ckpt)  # save epoch, i.e. 'epoch3.pt'
 
@@ -775,7 +775,7 @@ class BaseTrainer:
             if RANK in {-1, 0}:
                 ckpt = strip_optimizer(self.last) if self.last.exists() else {}
                 if model:
-                    # update yolov11x_teacher_v1_20251211.pt train_metrics from last.pt
+                    # update student_v1.pt train_metrics from last.pt
                     strip_optimizer(self.best, updates={"train_results": ckpt.get("train_results")})
         if model:
             LOGGER.info(f"\nValidating {model}...")

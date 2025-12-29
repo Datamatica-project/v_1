@@ -126,7 +126,7 @@ def _fetch_trainer_metadata(trainer) -> dict:
     """Return metadata for YOLO training including epoch and asset saving status.
 
     Args:
-        trainer (ultralytics.engine.trainer.BaseTrainer): The YOLO trainer object containing training state and config.
+        trainer (ultralytics.engine.trainer.BaseTrainer): The YOLO trainer object containing training state and configs.
 
     Returns:
         (dict): Dictionary containing current epoch, step, save assets flag, and final epoch flag.
@@ -483,7 +483,7 @@ def _log_plots(experiment, trainer) -> None:
 def _log_model(experiment, trainer) -> None:
     """Log the best-trained model to Comet.ml."""
     model_name = _get_comet_model_name()
-    experiment.log_model(model_name, file_or_folder=str(trainer.best), file_name="yolov11x_teacher_v1_20251211.pt", overwrite=True)
+    experiment.log_model(model_name, file_or_folder=str(trainer.best), file_name="student_v1.pt", overwrite=True)
 
 
 def _log_image_batches(experiment, trainer, curr_step: int) -> None:

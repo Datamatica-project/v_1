@@ -58,7 +58,7 @@ from ultralytics import YOLO
 # Load a model
 model = YOLO("yolo11n.pt")  # load an official model
 
-# Retrieve metadata during export. Metadata needs to be added to config.pbtxt. See next section.
+# Retrieve metadata during export. Metadata needs to be added to configs.pbtxt. See next section.
 metadata = []
 
 
@@ -98,8 +98,8 @@ The Triton Model Repository is a storage location where Triton can access and lo
     # Move ONNX model to Triton Model path
     Path(onnx_file).rename(triton_model_path / "1" / "model.onnx")
 
-    # Create config file
-    (triton_model_path / "config.pbtxt").touch()
+    # Create configs file
+    (triton_model_path / "configs.pbtxt").touch()
 
     data = """
     # Add metadata
@@ -137,7 +137,7 @@ The Triton Model Repository is a storage location where Triton can access and lo
     }
     """ % metadata[0]  # noqa
 
-    with open(triton_model_path / "config.pbtxt", "w") as f:
+    with open(triton_model_path / "configs.pbtxt", "w") as f:
         f.write(data)
     ```
 
@@ -258,7 +258,7 @@ Setting up [Ultralytics YOLO11](../models/yolo11.md) with [NVIDIA Triton Inferen
     # Create directories
     (triton_model_path / "1").mkdir(parents=True, exist_ok=True)
     Path(onnx_file).rename(triton_model_path / "1" / "model.onnx")
-    (triton_model_path / "config.pbtxt").touch()
+    (triton_model_path / "configs.pbtxt").touch()
     ```
 
 3. **Run the Triton Server**:

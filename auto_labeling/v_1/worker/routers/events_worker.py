@@ -6,17 +6,17 @@ import os
 import requests
 from typing import Any, Dict, Optional, Literal
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix="/events")  # ✅ app에서 /api/v1 붙이는 전제
 
 BACKEND_NOTIFY_URL = os.getenv("BACKEND_NOTIFY_URL", "").strip()
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "").strip()
-
 DEFAULT_TIMEOUT = (3, 15)
+
 EventType = Literal[
-    "ROUND0_EXPORTED",   # round0 PASS export 완료 (NAS 경로 포함)
-    "ROUND_RESULT",      # round별 pass/fail/miss 요약
-    "LOOP_FINISHED",     # loop 종료 최종 요약
-    "LOOP_FAILED",       # loop 실패 요약
+    "ROUND0_EXPORTED",
+    "ROUND_RESULT",
+    "LOOP_FINISHED",
+    "LOOP_FAILED",
 ]
 
 
@@ -25,13 +25,14 @@ class EventPayload(BaseModel):
     run_id: str = Field(..., alias="runId")
 
     round: Optional[int] = Field(default=None, alias="round")
-
     status: str = Field(default="DONE", alias="status")
 
     pass_count: Optional[int] = Field(default=None, alias="passCount")
     fail_count: Optional[int] = Field(default=None, alias="failCount")
     miss_count: Optional[int] = Field(default=None, alias="missCount")
 
+    # ✅ ROUND0_EXPORTED에서 쓰는 값들
+    share_root: Optional[str] = Field(default=None, alias="shareRoot")          # ★ 추가 추천
     export_rel_path: Optional[str] = Field(default=None, alias="exportRelPath")
     manifest_rel_path: Optional[str] = Field(default=None, alias="manifestRelPath")
 
@@ -40,6 +41,16 @@ class EventPayload(BaseModel):
 
     job_id: Optional[str] = Field(default=None, alias="jobId")
     timestamp: Optional[str] = Field(default=None, alias="timestamp")
+
+    class Config:  # ✅ pydantic v1 호환
+        allow_population_by_field_name = True
+
+
+def _dump_by_alias(model: BaseModel) -> Dict[str, Any]:
+    # ✅ pydantic v1/v2 호환 dump
+    if hasattr(model, "model_dump"):  # v2
+        return model.model_dump(by_alias=True, exclude_none=True)
+    return model.dict(by_alias=True, exclude_none=True)  # v1
 
 
 def _post_event(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -66,8 +77,7 @@ def _post_event(payload: Dict[str, Any]) -> Dict[str, Any]:
         return {"status": "FAILED", "error": str(e), "url": BACKEND_NOTIFY_URL}
 
 
-@router.post("/api/events")
+@router.post("")
 def emit_event(req: EventPayload = Body(...)) -> Dict[str, Any]:
-
-    payload = req.model_dump(by_alias=True, exclude_none=True)
+    payload = _dump_by_alias(req)
     return _post_event(payload)

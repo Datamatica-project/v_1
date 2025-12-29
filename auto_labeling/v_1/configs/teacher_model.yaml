@@ -1,5 +1,5 @@
 teacher:
-  weights_uri: "s3://models/student_v1.pt"
+  weights: "/workspace/auto_labeling/v_1/models/teacher/weights/yolov11x_teacher_v1_20251211.pt"
   weights_cache_dir: "models/teacher/weights_cache"
 
   device: "cuda:0"

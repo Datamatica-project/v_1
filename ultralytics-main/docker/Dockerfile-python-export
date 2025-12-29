@@ -26,7 +26,7 @@ RUN uv pip install --system -e ".[export]" && \
     yolo export model=tmp/yolo11n.pt format=imx imgsz=32 && \
     uv pip install --system paddlepaddle x2paddle && \
     # Remove extra build files
-    rm -rf tmp /root/.config/Ultralytics/persistent_cache.json
+    rm -rf tmp /root/.configs/Ultralytics/persistent_cache.json
 
 # Usage Examples -------------------------------------------------------------------------------------------------------
 

@@ -361,7 +361,7 @@ class DetectionModel(BaseModel):
     """
 
     def __init__(self, cfg="yolo11n.yaml", ch=3, nc=None, verbose=True):
-        """Initialize the YOLO detection model with the given config and parameters.
+        """Initialize the YOLO detection model with the given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -501,7 +501,7 @@ class OBBModel(DetectionModel):
     """
 
     def __init__(self, cfg="yolo11n-obb.yaml", ch=3, nc=None, verbose=True):
-        """Initialize YOLO OBB model with given config and parameters.
+        """Initialize YOLO OBB model with given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -533,7 +533,7 @@ class SegmentationModel(DetectionModel):
     """
 
     def __init__(self, cfg="yolo11n-seg.yaml", ch=3, nc=None, verbose=True):
-        """Initialize Ultralytics YOLO segmentation model with given config and parameters.
+        """Initialize Ultralytics YOLO segmentation model with given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -842,7 +842,7 @@ class WorldModel(DetectionModel):
     """
 
     def __init__(self, cfg="yolov8s-world.yaml", ch=3, nc=None, verbose=True):
-        """Initialize YOLOv8 world model with given config and parameters.
+        """Initialize YOLOv8 world model with given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -975,7 +975,7 @@ class YOLOEModel(DetectionModel):
     """
 
     def __init__(self, cfg="yoloe-v8s.yaml", ch=3, nc=None, verbose=True):
-        """Initialize YOLOE model with given config and parameters.
+        """Initialize YOLOE model with given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -1203,7 +1203,7 @@ class YOLOESegModel(YOLOEModel, SegmentationModel):
     """
 
     def __init__(self, cfg="yoloe-v8s-seg.yaml", ch=3, nc=None, verbose=True):
-        """Initialize YOLOE segmentation model with given config and parameters.
+        """Initialize YOLOE segmentation model with given configs and parameters.
 
         Args:
             cfg (str | dict): Model configuration file path or dictionary.
@@ -1379,7 +1379,7 @@ def torch_safe_load(weight, safe_only=False):
 
     Examples:
         >>> from ultralytics.nn.tasks import torch_safe_load
-        >>> ckpt, file = torch_safe_load("path/to/yolov11x_teacher_v1_20251211.pt", safe_only=True)
+        >>> ckpt, file = torch_safe_load("path/to/student_v1.pt", safe_only=True)
     """
     from ultralytics.utils.downloads import attempt_download_asset
 

@@ -181,7 +181,7 @@ Here we are using [marcoslucianops/DeepStream-Yolo](https://github.com/marcosluc
     ...
     [primary-gie]
     ...
-    config-file=config_infer_primary_yolo11.txt
+    configs-file=config_infer_primary_yolo11.txt
     ```
 
 11. You can also change the video source in `deepstream_app_config` file. Here a default video file is loaded

@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  v1-api:
+    image: v1-api:latest
+    container_name: v1-api
+    restart: unless-stopped
+
+    environment:
+      - WORKER_BASE_URL=http://v1-worker:8011
+      - PYTHONPATH=/workspace
+
+    working_dir: /workspace
+
+    volumes:
+      - ../..:/workspace/auto_labeling
+
+      - ../../../data:/workspace/auto_labeling/v_1/data
+
+    command: >
+      uvicorn auto_labeling.v_1.api.server:create_app
+      --host 0.0.0.0
+      --port 8010
+      --reload
+
+    ports:
+      - "8010:8010"
+
+    networks:
+      - v1-net
+
+networks:
+  v1-net:
+    external: true

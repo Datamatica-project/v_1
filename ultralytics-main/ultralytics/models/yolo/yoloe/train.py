@@ -65,7 +65,7 @@ class YOLOETrainer(DetectionTrainer):
               rather than the actual number of classes.
         """
         # NOTE: This `nc` here is the max number of different text samples in one image, rather than the actual `nc`.
-        # NOTE: Following the official config, nc hard-coded to 80 for now.
+        # NOTE: Following the official configs, nc hard-coded to 80 for now.
         model = YOLOEModel(
             cfg["yaml_file"] if isinstance(cfg, dict) else cfg,
             ch=self.data["channels"],
@@ -112,7 +112,7 @@ class YOLOEPETrainer(DetectionTrainer):
     """
 
     def get_model(self, cfg=None, weights=None, verbose: bool = True):
-        """Return YOLOEModel initialized with specified config and weights.
+        """Return YOLOEModel initialized with specified configs and weights.
 
         Args:
             cfg (dict | str, optional): Model configuration.
@@ -123,7 +123,7 @@ class YOLOEPETrainer(DetectionTrainer):
             (YOLOEModel): Initialized model with frozen layers except for specific projection layers.
         """
         # NOTE: This `nc` here is the max number of different text samples in one image, rather than the actual `nc`.
-        # NOTE: Following the official config, nc hard-coded to 80 for now.
+        # NOTE: Following the official configs, nc hard-coded to 80 for now.
         model = YOLOEModel(
             cfg["yaml_file"] if isinstance(cfg, dict) else cfg,
             ch=self.data["channels"],

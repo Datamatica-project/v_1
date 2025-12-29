@@ -352,7 +352,7 @@ There are a couple of best practices to follow in order to enable maximum perfor
     b. Open to edit the configuration file
 
     ```bash
-    sudo nano /boot/firmware/config.txt
+    sudo nano /boot/firmware/configs.txt
     ```
 
     c. Add the following lines at the bottom

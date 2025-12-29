@@ -442,7 +442,7 @@ class Predictor(BasePredictor):
         parameters for image normalization and other Ultralytics compatibility settings.
 
         Args:
-            model (torch.nn.Module | None): A pretrained SAM model. If None, a new model is built based on config.
+            model (torch.nn.Module | None): A pretrained SAM model. If None, a new model is built based on configs.
             verbose (bool): If True, prints selected device information.
 
         Examples:

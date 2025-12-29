@@ -30,7 +30,7 @@ class OBBPredictor(DetectionPredictor):
 
         Args:
             cfg (dict, optional): Default configuration for the predictor.
-            overrides (dict, optional): Configuration overrides that take precedence over the default config.
+            overrides (dict, optional): Configuration overrides that take precedence over the default configs.
             _callbacks (list, optional): List of callback functions to be invoked during prediction.
 
         Examples:

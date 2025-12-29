@@ -73,7 +73,7 @@ class MyCustomModel(DetectionModel):
 
 class CustomTrainer(DetectionTrainer):
     def get_model(self, cfg, weights):
-        """Returns a customized detection model instance configured with specified config and weights."""
+        """Returns a customized detection model instance configured with specified configs and weights."""
         return MyCustomModel(...)
 
 

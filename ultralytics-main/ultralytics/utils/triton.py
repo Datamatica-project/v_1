@@ -70,7 +70,7 @@ class TritonRemoteModel:
             import tritonclient.grpc as client
 
             self.triton_client = client.InferenceServerClient(url=self.url, verbose=False, ssl=False)
-            config = self.triton_client.get_model_config(endpoint, as_json=True)["config"]
+            config = self.triton_client.get_model_config(endpoint, as_json=True)["configs"]
 
         # Sort output names alphabetically, i.e. 'output0', 'output1', etc.
         config["output"] = sorted(config["output"], key=lambda x: x.get("name"))

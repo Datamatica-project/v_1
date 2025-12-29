@@ -70,10 +70,10 @@ If your documentation supports multiple languages, follow these steps to build a
     # Clear existing /site directory to prevent conflicts
     rm -rf site
 
-    # Build the default language site using the primary config file
+    # Build the default language site using the primary configs file
     mkdocs build -f docs/mkdocs.yml
 
-    # Loop through each language-specific config file and build its site
+    # Loop through each language-specific configs file and build its site
     for file in docs/mkdocs_*.yml; do
       echo "Building MkDocs site with $file"
       mkdocs build -f "$file"

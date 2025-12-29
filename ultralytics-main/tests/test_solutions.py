@@ -261,7 +261,7 @@ def test_area_chart_padding():
 
 
 def test_config_update_method_with_invalid_argument():
-    """Test that update() raises ValueError for invalid config keys."""
+    """Test that update() raises ValueError for invalid configs keys."""
     obj = solutions.config.SolutionConfig()
     try:
         obj.update(invalid_key=123)
