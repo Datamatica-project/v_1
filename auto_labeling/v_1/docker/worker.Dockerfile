@@ -43,13 +43,9 @@ print("torch:", torch.__version__)
 print("cuda:", torch.version.cuda)
 print("cuda available:", torch.cuda.is_available())
 EOF
-
 # ❌ 코드 COPY 하지 않음
+
 #   ./auto_labeling 은 docker-compose에서 mount
 
 EXPOSE 8011
-
-# 기본 실행:
-# - worker가 HTTP 서버면 그대로
-# - loop runner면 compose에서 command로 덮어쓰기
 CMD ["uvicorn", "auto_labeling.v_1.worker.main:app", "--host", "0.0.0.0", "--port", "8011"]

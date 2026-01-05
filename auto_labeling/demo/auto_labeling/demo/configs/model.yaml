@@ -1,0 +1,29 @@
+
+model:
+  name: "yolo-demo"
+  framework: "ultralytics"
+
+weights:
+  path: "demo/model/weights/best.pt"
+
+device:
+  default: "0"
+  fallback: "cpu"
+
+predict:
+  imgsz: 640
+  conf: 0.35
+  iou: 0.7
+  batch_size: 64
+
+pass_fail:
+  pass_conf: 0.5
+  empty_is_pass: true
+
+visualize:
+  show_label: true
+  show_conf: true
+  line_thickness: 2
+
+output:
+  base_dir: "demo/data/demo_runs"

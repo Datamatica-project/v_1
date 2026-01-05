@@ -115,7 +115,7 @@ def _student_make_yolo_labels(
 
 def load_loop_cfg(cfg_path: Optional[Path] = None) -> dict:
     if cfg_path is None:
-        cfg_path = ROOT / "configs" / "v1_loop.yaml"
+        cfg_path = ROOT / "configs" / "v1_loop_real.yaml"
     if not cfg_path.exists():
         raise FileNotFoundError(cfg_path)
 

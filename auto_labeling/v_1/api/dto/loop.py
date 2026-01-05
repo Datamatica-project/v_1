@@ -11,7 +11,7 @@ class RunLoopRequest(CamelModel):
             "Loop 실행에 사용할 설정 YAML 경로.\n"
             "미지정 시 서버 기본 loop 설정(cfg)을 사용."
         ),
-        examples=["auto_labeling/v_1/configs/v1_loop.yaml"],
+        examples=["auto_labeling/v_1/configs/v1_loop_real.yaml"],
     )
 
     student_weight: Optional[str] = Field(
@@ -104,6 +104,12 @@ class JobStatusResponse(CamelModel):
     """
     Loop 작업 상태 조회 응답 DTO
     """
+    run_id: Optional[str] = Field(
+        None,
+        alias="runId",
+        description="실행(run) 식별자. 현재 정책: runId가 없으면 jobId를 사용",
+        examples=["run_001"],
+    )
 
     job_id: str = Field(
         ...,

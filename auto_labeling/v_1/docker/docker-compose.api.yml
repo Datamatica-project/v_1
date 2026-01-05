@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+
   v1-api:
     image: v1-api:latest
     container_name: v1-api
@@ -9,13 +10,14 @@ services:
     environment:
       - WORKER_BASE_URL=http://v1-worker:8011
       - PYTHONPATH=/workspace
+      - V1_EXPORT_LOCAL_ROOT=/workspace
 
     working_dir: /workspace
 
     volumes:
       - ../..:/workspace/auto_labeling
-
       - ../../../data:/workspace/auto_labeling/v_1/data
+      - ../../../logs:/workspace/auto_labeling/v_1/logs
 
     command: >
       uvicorn auto_labeling.v_1.api.server:create_app

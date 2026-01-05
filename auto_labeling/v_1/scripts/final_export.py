@@ -11,7 +11,7 @@ from auto_labeling.v_1.src.export_pass_fail_final import export_pass_fail_final
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--cfg", type=str, default=str(ROOT / "configs" / "v1_loop.yaml"))
+    ap.add_argument("--cfg", type=str, default=str(ROOT / "configs" / "v1_loop_real.yaml"))
     ap.add_argument("--student", type=str, default="", help="initial student weight (.pt), empty = default")
 
     ap.add_argument("--export_root", type=str, default=str(ROOT / "data" / "final_export"))

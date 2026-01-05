@@ -1,0 +1,24 @@
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.DS_Store
+
+# logs / runs / data
+auto_labeling/demo/data/**
+auto_labeling/v_1/data/**
+**/runs/**
+**/wandb/**
+**/.ultralytics/**
+
+# venv
+.venv/
+venv/
+env/
+
+# git
+.git/
+.gitignore

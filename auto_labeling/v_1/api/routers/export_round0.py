@@ -20,10 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]  # .../auto_labeling/v_1
 EXPORT_REG_DIR = ROOT / "logs" / "exports"
 EXPORT_REG_DIR.mkdir(parents=True, exist_ok=True)
 
-# ✅ NAS share root (서버 고정 정책)
 NAS_SHARE_ROOT = os.getenv("V1_EXPORT_NAS_ROOT", r"\\DS1821_1\V1_EXPORTS")
-
-# ✅ NAS를 HTTP로 서빙할 경우(옵션): served base url을 매핑해서 manifestUrl/downloadBaseUrl을 생성
 NAS_SERVED_BASE_URL = os.getenv("V1_EXPORT_NAS_SERVED_BASE_URL", "").strip() or None
 NAS_URL_MAP: Dict[str, str] = (
     {NAS_SHARE_ROOT: NAS_SERVED_BASE_URL} if NAS_SERVED_BASE_URL else {}
@@ -58,7 +55,7 @@ def _write_json(p: Path, obj: Dict[str, Any]) -> None:
 def _join_unc(share_root: str, rel_path: str) -> str:
     """
     UNC 경로 조합.
-    - share_root: 서버 고정 NAS 루트 (예: \\DS1821_1\\V1_EXPORTS)
+    - share_root: NAS 루트 (예: \\DS1821_1\\V1_EXPORTS)
     - rel_path: export 결과 상대경로 (예: exports/run_001/round0)
     """
     if not share_root:
@@ -71,7 +68,7 @@ def _join_unc(share_root: str, rel_path: str) -> str:
 def _to_served_url(share_root: str, rel_path: str) -> Optional[str]:
     """
     NAS를 HTTP로 서빙하는 환경에서 다운로드 URL을 생성.
-    - V1_EXPORT_NAS_SERVED_BASE_URL이 설정되어 있으면 share_root -> base_url 매핑으로 URL 생성
+    - (주의) NAS_URL_MAP은 share_root -> served_base_url 매핑
     """
     base = NAS_URL_MAP.get(share_root)
     if not base:
@@ -102,8 +99,7 @@ def _parse_dt(s: Optional[str]) -> Optional[datetime]:
         "- 등록된 결과는 `GET /api/v1/export/round0/{runId}` 로 조회할 수 있습니다.\n\n"
         "### 경로 정책(중요)\n"
         "- exportRelPath / manifestRelPath는 **NAS share root 기준 상대 경로**입니다.\n"
-        "- 서버는 NAS 루트(`V1_EXPORT_NAS_ROOT`)를 고정값으로 사용하며,\n"
-        "  응답에서 `shareRoot` + `exportRelPath`로 실제 경로(UNC 또는 served URL)를 구성합니다.\n\n"
+        "- notify 시점에 서버는 NAS 루트(`V1_EXPORT_NAS_ROOT`)를 shareRoot로 저장합니다.\n\n"
         "### downloadBaseUrl / manifestUrl 생성 정책\n"
         "- `V1_EXPORT_NAS_SERVED_BASE_URL`이 설정되어 있으면 HTTP URL을 생성\n"
         "- 없으면 UNC(\\\\DS...\\...) 경로를 반환"
@@ -147,7 +143,6 @@ def notify_round0_export(
     )
 ):
     now = _utc_now()
-    share_root = NAS_SHARE_ROOT
 
     run_id = req.run_id.strip()
     if not run_id:
@@ -157,11 +152,12 @@ def notify_round0_export(
     if not export_rel_path:
         raise HTTPException(status_code=400, detail="exportRelPath is required")
 
+    share_root = NAS_SHARE_ROOT
+
     created_at = (req.created_at or now).isoformat()
     updated_at = now.isoformat()
 
     record: Dict[str, Any] = {
-        # ✅ 내부 저장은 snake_case 유지 (외부 응답/요청은 camelCase DTO로 처리)
         "run_id": run_id,
         "round": int(req.round or 0),
         "status": req.status,
@@ -171,7 +167,7 @@ def notify_round0_export(
         "fail_count": int(req.fail_count or 0),
         "miss_count": int(req.miss_count or 0),
 
-        # ✅ NAS 정책 고정
+        # ✅ 저장된 값이 source of truth
         "share_root": share_root,
         "export_rel_path": export_rel_path,
         "manifest_rel_path": req.manifest_rel_path,
@@ -183,6 +179,7 @@ def notify_round0_export(
 
     _write_json(_run_file(run_id), record)
 
+    # ✅ notify 응답도 "저장된 값" 그대로 사용
     download_base_url = _to_served_url(share_root, export_rel_path) or _join_unc(share_root, export_rel_path)
     manifest_url = None
     if req.manifest_rel_path:
@@ -219,7 +216,8 @@ def notify_round0_export(
         "notify로 등록된 round0 export 정보를 runId로 조회합니다.\n\n"
         "### 동작\n"
         "- logs/exports/round0_{runId}.json 레지스트리를 읽어 응답합니다.\n"
-        "- NAS 루트는 서버 고정값(`V1_EXPORT_NAS_ROOT`)을 기준으로 downloadBaseUrl/manifestUrl을 계산합니다."
+        "- ✅ NAS 루트는 '고정값'이 아니라 레지스트리에 저장된 shareRoot가 source of truth 입니다.\n"
+        "  (과거 run 재현/환경별 NAS/마이그레이션을 위해)"
     ),
     responses={
         200: {"description": "조회 성공"},
@@ -237,9 +235,8 @@ def get_round0_export(
     if not record:
         raise HTTPException(status_code=404, detail="round0 export not found")
 
-    # ✅ NAS 고정 정책: 저장된 share_root가 달라도 응답은 고정값 기준으로 계산
-    share_root = NAS_SHARE_ROOT
-
+    # ✅ 레지스트리에 저장된 값 그대로 사용 (고정 정책 제거)
+    share_root = str(record.get("share_root") or "")
     export_rel_path = str(record.get("export_rel_path", "") or "")
     manifest_rel_path = record.get("manifest_rel_path")
 

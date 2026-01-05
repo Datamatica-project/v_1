@@ -1,0 +1,29 @@
+services:
+  v1-demo-gpu:
+    container_name: v1-demo-gpu
+    build:
+      context: ../..
+      dockerfile: auto_labeling/demo/Dockerfile
+    ports:
+      - "8014:8014"
+    environment:
+      - PYTHONPATH=/workspace
+    volumes:
+      - ./auto_labeling/demo/data:/workspace/auto_labeling/demo/data
+      - ./auto_labeling/demo/configs:/workspace/auto_labeling/demo/configs:ro
+      - ./auto_labeling/demo/model:/workspace/auto_labeling/demo/model:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - shared-net
+
+networks:
+  shared-net:
+    external: true
+    name: mmustai-shared-net

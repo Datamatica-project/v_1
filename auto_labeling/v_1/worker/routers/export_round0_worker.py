@@ -1,12 +1,14 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
+
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple
 
 from fastapi import APIRouter, BackgroundTasks, Body, HTTPException
 from pydantic import BaseModel, Field
-from pathlib import Path
-import os
-import json
-import shutil
-from typing import Dict, Any, Tuple
 
 import requests
 
@@ -34,15 +36,15 @@ NAS_ROOT = Path(os.getenv("NAS_ROOT", "/mnt/nas"))
 NAS_PASS_ROOT = Path(os.getenv("NAS_PASS_ROOT", str(NAS_ROOT / "v1" / "pass")))
 
 # ✅ 백엔드(= api 컨테이너) notify endpoint
-# - prefix 꼬임 방지: base + notify_path로 단순화
-API_BASE_URL = os.getenv("API_BASE_URL", "http://v1-api:8010").rstrip("/")
+# - 포트 8011 기본값(지금 너 compose 기준)
+API_BASE_URL = os.getenv("API_BASE_URL", "http://v1-api:8011").rstrip("/")
+
 API_NOTIFY_PATH = os.getenv("API_NOTIFY_PATH", "/api/v1/export/round0/notify").strip()
 if not API_NOTIFY_PATH.startswith("/"):
     API_NOTIFY_PATH = "/" + API_NOTIFY_PATH
 
-# ✅ 백엔드에 넘길 shareRoot (UNC/URL 매핑의 기준값)
-# - api 쪽 NAS_URL_MAP key로 쓰고 싶으면, "공유루트" 값을 정확히 넣는다.
-# - 예: "\\\\DS1821_1\\home"  또는  "smb://DS1821_1/home"  또는  "/mnt/nas"
+# ✅ (참고) shareRoot는 round0 API가 서버 고정 NAS 정책이면 "요청에 포함하지 않는" 게 안전
+# 필요하면 meta.json에만 기록해도 충분
 SHARE_ROOT = os.getenv("V1_EXPORT_SHARE_ROOT", str(NAS_ROOT)).strip()
 
 # jobs
@@ -55,14 +57,18 @@ class ExportRound0Request(BaseModel):
     run_id: str = Field(..., alias="runId")
     async_notify: bool = Field(True, alias="asyncNotify")
 
-    # pydantic v1 호환
     class Config:
         allow_population_by_field_name = True
 
 
 def _now_iso_z() -> str:
-    from datetime import datetime, timezone
-    return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    # ✅ ms 제거
+    return (
+        datetime.now(tz=timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
 
 
 def _job_path(run_id: str) -> Path:
@@ -101,11 +107,14 @@ def _resolve_pass_dirs() -> Tuple[Path, Path, str]:
         return PASS_IMG_DIR, PASS_LBL_DIR, "pass"
     if ROUND0_PASS_IMG_DIR.exists() and ROUND0_PASS_LBL_DIR.exists():
         return ROUND0_PASS_IMG_DIR, ROUND0_PASS_LBL_DIR, "round_r0_pass"
-    # 둘 다 없으면 누적 PASS 기준으로 에러를 내되, 메시지를 명확히
     return PASS_IMG_DIR, PASS_LBL_DIR, "missing"
 
 
 def _notify_round0_to_api(*, run_id: str, pass_count: int, export_rel_path: str) -> None:
+    """
+    ✅ API /export/round0/notify 스키마에 맞춰 최소 필드만 전송
+    - shareRoot는 서버 고정 정책이면 보내지 않음(422 방지)
+    """
     payload = {
         "runId": run_id,
         "round": 0,
@@ -114,10 +123,9 @@ def _notify_round0_to_api(*, run_id: str, pass_count: int, export_rel_path: str)
         "passCount": int(pass_count),
         "failCount": 0,
         "missCount": 0,
-        "shareRoot": str(SHARE_ROOT),     # ✅ 추가(중요)
-        "exportRelPath": export_rel_path, # ex) "v1/pass/<runId>"
+        "exportRelPath": export_rel_path,  # ex) "v1/pass/<runId>"
         "manifestRelPath": None,
-        "extra": {},
+        "extra": {"countUnit": "image"},
     }
 
     url = f"{API_BASE_URL}{API_NOTIFY_PATH}"
@@ -127,7 +135,7 @@ def _notify_round0_to_api(*, run_id: str, pass_count: int, export_rel_path: str)
     except Exception as e:
         log_json(
             {
-                "time": _now_iso_z(),
+                "timestamp": _now_iso_z(),
                 "level": "WARN",
                 "scope": "export",
                 "refId": run_id,
@@ -162,13 +170,14 @@ def _export_pass_to_nas(run_id: str) -> Dict[str, Any]:
         "runId": run_id,
         "status": "PASS_SAVED",
         "savedAt": _now_iso_z(),
-        "sourceKind": src_kind,             # ✅ 어디서 가져왔는지 기록
+        "sourceKind": src_kind,
         "sourceImagesDir": str(src_img_dir),
         "sourceLabelsDir": str(src_lbl_dir),
         "nasPassPath": str(out_root),
         "imagesDir": str(img_dst),
         "labelsDir": str(lbl_dst),
         "passCount": int(pass_count),
+        # 참고용(요청에는 안 보냄)
         "shareRoot": str(SHARE_ROOT),
         "exportRelPath": f"v1/pass/{run_id}",
     }
@@ -210,26 +219,27 @@ def export_round0(bg: BackgroundTasks, req: ExportRound0Request = Body(...)):
                     "result": {
                         "exportRelPath": meta.get("exportRelPath"),
                         "passCount": meta.get("passCount"),
-                        "shareRoot": meta.get("shareRoot"),
                     },
                 },
             )
         except Exception:
             pass
 
-        # ✅ API notify (옵션: background)
+        export_rel_path = str(meta.get("exportRelPath", f"v1/pass/{run_id}"))
+        pass_count = int(meta.get("passCount", 0))
+
         if async_notify:
             bg.add_task(
                 _notify_round0_to_api,
                 run_id=run_id,
-                pass_count=int(meta.get("passCount", 0)),
-                export_rel_path=str(meta.get("exportRelPath", f"v1/pass/{run_id}")),
+                pass_count=pass_count,
+                export_rel_path=export_rel_path,
             )
         else:
             _notify_round0_to_api(
                 run_id=run_id,
-                pass_count=int(meta.get("passCount", 0)),
-                export_rel_path=str(meta.get("exportRelPath", f"v1/pass/{run_id}")),
+                pass_count=pass_count,
+                export_rel_path=export_rel_path,
             )
 
         return meta
@@ -249,7 +259,6 @@ def export_round0(bg: BackgroundTasks, req: ExportRound0Request = Body(...)):
         except Exception:
             pass
 
-        # ✅ 실패는 HTTP 에러로 주는 게 프론트/백엔드에서 다루기 편함
         raise HTTPException(
             status_code=500,
             detail={"runId": run_id, "status": "FAILED", "error": str(e)},

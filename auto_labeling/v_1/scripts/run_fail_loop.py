@@ -19,7 +19,7 @@ def _iter_images(d: Path) -> int:
 def main():
     ap = argparse.ArgumentParser(description="V1 FAIL-only loop runner")
 
-    ap.add_argument("--cfg", type=str, default=str(ROOT / "configs" / "v1_loop.yaml"))
+    ap.add_argument("--cfg", type=str, default=str(ROOT / "configs" / "v1_loop_real.yaml"))
     ap.add_argument("--student", type=str, default="", help="student weight (.pt), empty=default")
 
     ap.add_argument(
@@ -29,7 +29,6 @@ def main():
         help="initial fail pool images dir (FAIL-only loop input)",
     )
 
-    # ✅ 자주 바꾸는 옵션은 CLI로 cfg override 가능하게
     ap.add_argument("--copy_mode", type=str, default="", help="copy/symlink/hardlink (override loop_cfg.copy_mode)")
     ap.add_argument("--max_samples", type=int, default=-1, help="max samples per split (override loop_cfg.max_samples)")
     ap.add_argument("--save_labels", action="store_true", help="copy labels too (requires GT labels)")

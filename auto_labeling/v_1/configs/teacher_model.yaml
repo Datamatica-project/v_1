@@ -16,7 +16,7 @@ teacher:
   vis_dir: "logs/teacher_vis"
 
   min_boxes_for_success: 2
-  min_conf_for_success: 0.55
+  min_conf_for_success: 0.35
   min_box_area_norm: 0.0002
   max_boxes_per_image: 50
 

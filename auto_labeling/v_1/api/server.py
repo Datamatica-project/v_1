@@ -7,6 +7,7 @@ from auto_labeling.v_1.api.routers.export import router as export_router
 from auto_labeling.v_1.api.routers.export_round0 import router as export_round0_router
 from auto_labeling.v_1.api.routers.events import router as events_router
 from auto_labeling.v_1.api.routers.logs import router as logs_router
+from auto_labeling.v_1.api.routers.results import router as results_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -22,6 +23,7 @@ def create_app() -> FastAPI:
     app.include_router(export_round0_router, prefix="/api/v1", tags=["export"])
     app.include_router(events_router, prefix="/api/v1", tags=["events"])
     app.include_router(logs_router, prefix="/api/v1", tags=["logs"])
+    app.include_router(results_router, prefix="/api/v1", tags=["v1-results"])
     return app
 
 

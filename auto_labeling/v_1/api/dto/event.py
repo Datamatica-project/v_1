@@ -6,12 +6,20 @@ from pydantic import Field
 from .base import CamelModel
 
 EventType = Literal[
-    "ROUND0_EXPORTED",
-    "ROUND_RESULT",
-    "LOOP_FINISHED",
+    "LOOP_STARTED",
+    "LOOP_DONE",
     "LOOP_FAILED",
+    "EXPORT_FINAL_READY",
+    "EXPORT_FINAL_DONE",
+    "EXPORT_FINAL_FAILED",
 ]
 
+class EventIngestRequest(CamelModel):
+    event_type: EventType = Field(..., alias="eventType")
+    run_id: Optional[str] = Field(None, alias="runId")
+    job_id: Optional[str] = Field(None, alias="jobId")
+    message: Optional[str] = Field(None, alias="message")
+    payload: Dict[str, Any] = Field(default_factory=dict, alias="payload")
 
 class EventPayload(CamelModel):
     eventType: EventType = Field(
