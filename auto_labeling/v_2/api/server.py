@@ -11,7 +11,7 @@ from auto_labeling.v_1.api.routers.results import router as results_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="V1 Auto Labeling API",
+        title="V2 Auto Labeling API",
         version="1.0.0",
         response_model_by_alias=True,
     )
