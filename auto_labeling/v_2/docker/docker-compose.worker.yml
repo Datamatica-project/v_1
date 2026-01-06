@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  v1-worker:
+    image: v1-worker:latest
+    container_name: v1-worker
+    restart: unless-stopped
+    shm_size: "8gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/workspace
+      - API_BASE_URL=http://v1-api:8010
+      - API_NOTIFY_PATH=/api/v1/export/round0/notify
+      - API_TIMEOUT=10.0
+      - NAS_ROOT=/mnt/nas
+      - NAS_PASS_ROOT=/mnt/nas/v1/pass
+      - V1_EXPORT_SHARE_ROOT=\\DS1821_1\home
+      - PASS_IMG_DIR=/workspace/auto_labeling/v_1/data/pass/images
+      - PASS_LBL_DIR=/workspace/auto_labeling/v_1/data/pass/labels
+      - ROUND0_PASS_IMG_DIR=/workspace/auto_labeling/v_1/data/round_r0/pass/images
+      - ROUND0_PASS_LBL_DIR=/workspace/auto_labeling/v_1/data/round_r0/pass/labels
+      - WORKER_JOB_DIR=/workspace/auto_labeling/v_1/logs/jobs
+    working_dir: /workspace
+
+    volumes:
+      - ../..:/workspace/auto_labeling
+      - ../../../data:/workspace/auto_labeling/v_1/data
+      - /mnt/nas:/mnt/nas
+    command: >
+      uvicorn auto_labeling.v_1.worker.server:app
+      --host 0.0.0.0
+      --port 8011
+
+    ports:
+      - "8011:8011"
+
+    networks:
+      - v1-net
+
+networks:
+  v1-net:
+    external: true

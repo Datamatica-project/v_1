@@ -1,0 +1,23 @@
+teacher:
+  weights: "/workspace/auto_labeling/v_1/models/teacher/weights/yolov11x_teacher_v1_20251211.pt"
+  weights_cache_dir: "models/teacher/weights_cache"
+
+  device: "cuda:0"
+  imgsz: 1280
+  conf_th: 0.25
+  iou: 0.7
+  max_det: 300
+  agnostic_nms: false
+  classes: null
+  max_fail_samples: 1000
+
+  save_conf: false
+  enable_vis: true
+  vis_dir: "logs/teacher_vis"
+
+  min_boxes_for_success: 2
+  min_conf_for_success: 0.35
+  min_box_area_norm: 0.0002
+  max_boxes_per_image: 50
+
+  keep_classes: null

@@ -1,0 +1,1 @@
+from auto_labeling.v_1.api.server import app
