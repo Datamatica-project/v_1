@@ -250,3 +250,123 @@ class GetResultsResponse(CamelModel):
     offset: int = Field(..., description="pagination 시작 index", ge=0)
     limit: int = Field(..., description="pagination page size", ge=1)
     items: List[ResultItem] = Field(default_factory=list, description="결과 아이템 리스트")
+
+
+# ========================================
+# 앙상블 프리뷰 관련 DTO
+# ========================================
+class BuildPreviewRequest(CamelModel):
+    """
+    프리뷰 생성 요청 (앙상블)
+
+    Example:
+        {
+            "loopId": "loop_abc123",
+            "categories": ["PASS_THREE", "PASS_TWO", "FAIL", "MISS"],
+            "samplesPerCategory": 5
+        }
+    """
+    loop_id: str = Field(
+        ...,
+        alias="loopId",
+        description="Loop 식별자"
+    )
+
+    categories: List[str] = Field(
+        default=["PASS_THREE", "PASS_TWO", "FAIL", "MISS"],
+        description="프리뷰 생성할 카테고리"
+    )
+
+    samples_per_category: int = Field(
+        default=5,
+        alias="samplesPerCategory",
+        ge=1,
+        le=20,
+        description="카테고리당 샘플 수"
+    )
+
+
+class BuildPreviewResponse(CamelModel):
+    """
+    프리뷰 생성 응답
+
+    Example:
+        {
+            "resultCode": "SUCCESS",
+            "message": "Preview set built",
+            "data": {
+                "loopId": "loop_abc123",
+                "round": 0,
+                "previewCount": 20,
+                "previewDir": "logs/previews/loop_abc123/run_0"
+            }
+        }
+    """
+    result_code: str = Field(
+        ...,
+        alias="resultCode",
+        description="결과 코드 (SUCCESS, ERROR)"
+    )
+
+    message: str = Field(
+        ...,
+        description="결과 메시지"
+    )
+
+    data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="프리뷰 결과 데이터"
+    )
+
+
+class PreviewImage(CamelModel):
+    """
+    프리뷰 이미지 정보
+    """
+    category: str = Field(
+        ...,
+        description="카테고리 (PASS_THREE, PASS_TWO, FAIL, MISS)"
+    )
+
+    file_name: str = Field(
+        ...,
+        alias="fileName",
+        description="파일명"
+    )
+
+    url: str = Field(
+        ...,
+        description="이미지 접근 URL"
+    )
+
+
+class RoundPreviewResponse(CamelModel):
+    """
+    Round별 프리뷰 조회 응답
+
+    Example:
+        {
+            "resultCode": "SUCCESS",
+            "data": {
+                "loopId": "loop_abc123",
+                "round": 0,
+                "images": [
+                    {
+                        "category": "PASS_THREE",
+                        "fileName": "img_001_preview.jpg",
+                        "url": "/api/v2/results/round/0/image?loopId=xxx&fileName=img_001_preview.jpg"
+                    }
+                ]
+            }
+        }
+    """
+    result_code: str = Field(
+        ...,
+        alias="resultCode",
+        description="결과 코드"
+    )
+
+    data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="프리뷰 데이터 (loopId, round, images)"
+    )
