@@ -1,8 +1,8 @@
 """
 이벤트 API Router (앙상블 방식, v2)
 
-Worker가 Loop 진행 중 이벤트를 API Server로 콜백
-Spring Boot 프론트엔드가 폴링으로 이벤트 조회
+Worker가 Loop 진행 중 이벤트를 로그 파일에 직접 기록
+Spring Boot 프론트엔드가 폴링으로 로그 파일 조회
 """
 
 from __future__ import annotations
@@ -12,10 +12,7 @@ from typing import Any, Dict, List, Optional
 import json
 import os
 
-from fastapi import APIRouter, HTTPException, Body, Query
-
-from auto_labeling.v_2.api.dto.event import EventIngestRequest
-from auto_labeling.v_2.api.dto.base import CamelModel
+from fastapi import APIRouter, HTTPException, Query
 
 router = APIRouter(prefix="/api/v2/events", tags=["Events (v2 Ensemble)"])
 
@@ -23,23 +20,6 @@ router = APIRouter(prefix="/api/v2/events", tags=["Events (v2 Ensemble)"])
 V2_ROOT = Path(__file__).resolve().parents[2]
 EVENTS_ROOT = Path(os.getenv("V2_EVENTS_ROOT", str(V2_ROOT.parent / "data" / "logs" / "events"))).resolve()
 EVENTS_ROOT.mkdir(parents=True, exist_ok=True)
-
-
-def _now_iso_z() -> str:
-    """ISO 8601 형식 현재 시각"""
-    return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def _safe_ts() -> str:
-    """파일명 충돌 방지용 타임스탬프 (microsecond 포함)"""
-    return datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
-
-
-def _dump_event(event: EventIngestRequest) -> dict:
-    """Pydantic v1/v2 호환 dump"""
-    if hasattr(event, "model_dump"):
-        return event.model_dump(by_alias=True, exclude_none=True)
-    return event.dict(by_alias=True, exclude_none=True)
 
 
 def _safe_join(base: Path, name: str) -> Path:
@@ -77,74 +57,63 @@ def _read_json(p: Path) -> Optional[dict]:
 
 
 # ========================================
-# POST: 이벤트 수신 (Worker → API 콜백)
+# GET: Loop 상태 조회 (단일 상태 파일)
 # ========================================
-@router.post("")
-def ingest_event(event: EventIngestRequest = Body(...)):
+@router.get("/status")
+def get_loop_status(
+    runId: str = Query(..., description="Run 식별자")
+):
     """
-    Worker가 Loop 진행 중 이벤트 콜백
+    특정 Run의 현재 Loop 상태 조회 (폴링용)
 
-    Request:
-    ```json
-    {
-        "eventType": "LOOP_STARTED",
-        "runId": "run_20250106_120000_xyz789",
-        "jobId": "job_20250106_120000",
-        "message": "Loop started",
-        "payload": {...}
-    }
-    ```
+    Worker가 기록하는 status.json 파일을 읽어 반환합니다.
 
     Response:
     ```json
     {
         "resultCode": "SUCCESS",
-        "message": "Event received"
+        "data": {
+            "status": "RUNNING",
+            "rounds": {
+                "round0": "DONE",
+                "round1": "RUNNING"
+            },
+            "updatedAt": "2025-01-07T10:30:00Z"
+        }
     }
     ```
-
-    저장 위치:
-    - `logs/events/{runId}/{timestamp}_{eventType}.json`
     """
-    # 필수 필드 검증
-    if not getattr(event, "event_type", None):
+    run_dir = _safe_join(EVENTS_ROOT, runId)
+
+    if not run_dir.exists():
         return {
-            "resultCode": "FAIL",
-            "errorCode": "EVT_4001",
-            "message": "eventType is required"
+            "resultCode": "SUCCESS",
+            "message": "Run not found",
+            "data": None
         }
 
-    if not getattr(event, "run_id", None):
+    status_file = run_dir / "status.json"
+
+    if not status_file.exists():
         return {
-            "resultCode": "FAIL",
-            "errorCode": "EVT_4002",
-            "message": "runId is required"
+            "resultCode": "SUCCESS",
+            "message": "Status file not found",
+            "data": None
         }
 
-    run_id = str(event.run_id).strip()
-    event_type = str(event.event_type).strip()
-    ts = _safe_ts()
+    status_data = _read_json(status_file)
 
-    # 이벤트 저장
-    out_dir = _safe_join(EVENTS_ROOT, run_id)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    out_file = out_dir / f"{ts}_{event_type}.json"
-    out_file.write_text(
-        json.dumps(
-            {
-                "receivedAt": _now_iso_z(),
-                "event": _dump_event(event)
-            },
-            ensure_ascii=False,
-            indent=2
-        ),
-        encoding="utf-8"
-    )
+    if status_data is None:
+        return {
+            "resultCode": "FAIL",
+            "message": "Failed to read status file",
+            "data": None
+        }
 
     return {
         "resultCode": "SUCCESS",
-        "message": "Event received"
+        "message": "ok",
+        "data": status_data
     }
 
 
